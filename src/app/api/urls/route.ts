@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { URL } from "node:url";
 
+
 function isValidUrl(url: string) : boolean{
     try {
         new URL(url)
@@ -68,23 +69,60 @@ export async function POST(req: NextRequest){
             }
         })
     
-        return NextResponse.json(newUrlCode, {status: 201})
-    } catch (error) {
-        console.error("Failed to create short code", error)
         return NextResponse.json(
-            { error: "Failed to create short URL" },
+            {
+                originalUrl: newUrlCode.originalUrl,
+                shortCode: newUrlCode.shortCode,
+                shortUrl: `${process.env.NEXT_PUBLIC_APP_URL}/${newUrlCode.shortCode}`
+                
+            },
+            {status: 201})
+    } catch (error) {
+    console.error("Failed to create short code", error)
+
+    return NextResponse.json(
+      { error: "Failed to create short URL" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET(){
+    try {
+        const allUrl = await prisma.url.findMany(
+            {
+                orderBy: {
+                    createdAt: "desc"
+                }
+            }
+        )
+
+        return NextResponse.json(allUrl)
+        
+    } catch (error) {
+        console.error("Failed to GET the Url", error)
+
+        return NextResponse.json(
+            { error: "Failed to GET the Url" },
             { status: 500 }
-  )
+        )
     }
 }
 
-export async function GET(){}
+
 
 /*
+POST /api/urls
 1. Receive originalUrl from req.json()
 2. Validate that it is a real URL
 3. Generate a random shortCode
 4. Check if shortCode already exists in database
 5. Save originalUrl and shortCode in database
 6. Return the short URL to frontend
+
+GET /api/urls
+Backend should do:
+1. Fetch all URLs from database
+2. Order by latest created
+3. Return array of URLs
 */
