@@ -35,3 +35,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ sho
     }
     
 }
+
+/*
+
+Explain the working of this file
+This route gets the extract the shortCode when someone clicks the shortUrl
+- It checks if the shortCode exits in the DB or not
+- Increase the Increment to 1 per click
+- Recirects the User to the originalPage
+
+*/
