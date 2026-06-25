@@ -135,12 +135,34 @@ function Dashboard() {
     });
   }
 
-  function formatExpiry(value: string | null) {
+  function formatDateTime(value: string) {
+    return new Date(value).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+
+  function getExpiryInfo(value: string | null) {
     if (!value) {
-      return "No expiry";
+      return {
+        label: "No expiry set",
+        detail: "Legacy link",
+        helper: "Stays active",
+        className:
+          "border-neutral-700 bg-white/[0.03] text-neutral-200",
+      };
     }
 
-    return `Expires ${formatDate(value)}`;
+    return {
+      label: "Expires at",
+      detail: formatDateTime(value),
+      helper: "Auto-deletes after expiry",
+      className: "border-amber-400/30 bg-amber-400/10 text-amber-100",
+    };
   }
 
   return (
@@ -166,11 +188,32 @@ function Dashboard() {
 
               {latestUrl && (
                 <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-4">
+                  {(() => {
+                    const expiryInfo = getExpiryInfo(latestUrl.expiresAt);
+
+                    return (
+                      <div
+                        className={`mb-4 rounded-md border px-3 py-2 ${expiryInfo.className}`}
+                      >
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="text-xs font-medium uppercase tracking-wide opacity-75">
+                              {expiryInfo.label}
+                            </p>
+                            <p className="mt-1 text-sm font-semibold">
+                              {expiryInfo.detail}
+                            </p>
+                          </div>
+                          <span className="w-fit rounded-md bg-black/20 px-2 py-1 text-xs font-medium">
+                            {expiryInfo.helper}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <p className="text-xs font-medium uppercase tracking-wide text-emerald-200">
                     Latest generated link
-                  </p>
-                  <p className="mt-1 text-xs text-emerald-100/70">
-                    {formatExpiry(latestUrl.expiresAt)}
                   </p>
                   <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <a
@@ -311,6 +354,7 @@ function Dashboard() {
               <div className="divide-y divide-white/10">
                 {urls.map((url) => {
                   const isCopied = copiedUrl === url.shortUrl;
+                  const expiryInfo = getExpiryInfo(url.expiresAt);
 
                   return (
                     <article
@@ -325,14 +369,25 @@ function Dashboard() {
                           <span className="text-xs text-neutral-500">
                             Created {formatDate(url.createdAt)}
                           </span>
-                          <span className="text-xs text-neutral-500">
-                            {formatExpiry(url.expiresAt)}
-                          </span>
                         </div>
 
                         <p className="mt-3 truncate text-sm text-neutral-400">
                           {url.originalUrl}
                         </p>
+
+                        <div
+                          className={`mt-3 flex w-fit max-w-full flex-col gap-1 rounded-md border px-3 py-2 sm:flex-row sm:items-center sm:gap-3 ${expiryInfo.className}`}
+                        >
+                          <span className="text-xs font-medium uppercase tracking-wide opacity-75">
+                            {expiryInfo.label}
+                          </span>
+                          <span className="truncate text-sm font-semibold">
+                            {expiryInfo.detail}
+                          </span>
+                          <span className="w-fit rounded-md bg-black/20 px-2 py-1 text-xs font-medium">
+                            {expiryInfo.helper}
+                          </span>
+                        </div>
 
                         <div className="mt-3 flex flex-col gap-3 rounded-md border border-white/10 bg-[#090d14] p-3 sm:flex-row sm:items-center">
                           <a
