@@ -79,12 +79,15 @@ export async function POST(req: NextRequest, {params} : {params : Promise<{userI
                 id: signedInUserId
             }
         })
+
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
     
         const newUrlCode = await prisma.url.create({
             data: {
                 originalUrl,
                 shortCode: randomCode,
-                userId: signedInUserId
+                userId: signedInUserId,
+                expiresAt
             }
         })
     
@@ -92,7 +95,8 @@ export async function POST(req: NextRequest, {params} : {params : Promise<{userI
             {
                 originalUrl: newUrlCode.originalUrl,
                 shortCode: newUrlCode.shortCode,
-                shortUrl: createShortUrl(newUrlCode.shortCode, req)
+                shortUrl: createShortUrl(newUrlCode.shortCode, req),
+                expiresAt: newUrlCode.expiresAt
                 
             },
             {status: 201})
@@ -111,6 +115,7 @@ export async function GET(req: NextRequest,{ params }: { params: Promise<{ userI
 
         const {userId} = await params
         const {userId : signedInUserId} = await auth()
+        const now = new Date()
 
         if (!signedInUserId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -123,7 +128,11 @@ export async function GET(req: NextRequest,{ params }: { params: Promise<{ userI
         const allUrl = await prisma.url.findMany(
             {
                 where: {
-                   userId: signedInUserId
+                   userId: signedInUserId,
+                   OR: [
+                    { expiresAt: null },
+                    { expiresAt: { gt: now } }
+                   ]
                 },
                 orderBy: {
                     createdAt: "desc"

@@ -12,6 +12,7 @@ type UrlItem = {
   clicks: number;
   createdAt: string;
   updatedAt: string;
+  expiresAt: string | null;
 };
 
 function Dashboard() {
@@ -134,6 +135,14 @@ function Dashboard() {
     });
   }
 
+  function formatExpiry(value: string | null) {
+    if (!value) {
+      return "No expiry";
+    }
+
+    return `Expires ${formatDate(value)}`;
+  }
+
   return (
     <main className="min-h-screen bg-[#070a0f] px-4 py-6 text-neutral-100 sm:px-6 lg:px-8">
       <section className="mx-auto flex w-full max-w-7xl flex-col gap-6">
@@ -159,6 +168,9 @@ function Dashboard() {
                 <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-emerald-200">
                     Latest generated link
+                  </p>
+                  <p className="mt-1 text-xs text-emerald-100/70">
+                    {formatExpiry(latestUrl.expiresAt)}
                   </p>
                   <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <a
@@ -312,6 +324,9 @@ function Dashboard() {
                           </span>
                           <span className="text-xs text-neutral-500">
                             Created {formatDate(url.createdAt)}
+                          </span>
+                          <span className="text-xs text-neutral-500">
+                            {formatExpiry(url.expiresAt)}
                           </span>
                         </div>
 

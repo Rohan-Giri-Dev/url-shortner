@@ -57,11 +57,13 @@ export async function POST(req: NextRequest){
                 { status: 500 }
             )
 }
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
     
         const newUrlCode = await prisma.url.create({
             data: {
                 originalUrl,
-                shortCode: randomCode
+                shortCode: randomCode,
+                expiresAt
             }
         })
     
@@ -69,7 +71,8 @@ export async function POST(req: NextRequest){
             {
                 originalUrl: newUrlCode.originalUrl,
                 shortCode: newUrlCode.shortCode,
-                shortUrl: createShortUrl(newUrlCode.shortCode, req)
+                shortUrl: createShortUrl(newUrlCode.shortCode, req),
+                expiresAt: newUrlCode.expiresAt
                 
             },
             {status: 201})
@@ -85,8 +88,15 @@ export async function POST(req: NextRequest){
 
 export async function GET(req: NextRequest){
     try {
+        const now = new Date()
         const allUrl = await prisma.url.findMany(
             {
+                where: {
+                    OR: [
+                        { expiresAt: null },
+                        { expiresAt: { gt: now } }
+                    ]
+                },
                 orderBy: {
                     createdAt: "desc"
                 }

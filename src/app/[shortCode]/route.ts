@@ -14,7 +14,18 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ sho
           return NextResponse.json({error: "Short URL not found"}, {status: 404})
       }
 
-      console.log(url)
+      if (url.expiresAt && url.expiresAt < new Date()) {
+        await prisma.url.delete({
+          where: {
+            shortCode,
+          },
+        })
+
+        return NextResponse.json(
+          { error: "This short link has expired" },
+          { status: 410 }
+        )
+      }
   
       await prisma.url.update({
         where: {shortCode},
