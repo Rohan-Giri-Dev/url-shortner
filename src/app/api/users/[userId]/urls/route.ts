@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
 import { URL } from "node:url";
+import { prisma } from "../../../../../../lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 
 function isValidUrl(url: string) : boolean{
@@ -34,8 +35,19 @@ function createShortUrl(shortCode: string, req: NextRequest): string {
 }
 
 // create a short url 
-export async function POST(req: NextRequest){
+export async function POST(req: NextRequest, {params} : {params : Promise<{userId: string}>}){
     try {
+        const {userId} = await params
+        const {userId : signedInUserId} = await auth()
+
+        if (!signedInUserId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        if (userId !== signedInUserId) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        }
+
         const {originalUrl} = await req.json()
     
         // checking for valid url
@@ -69,11 +81,22 @@ export async function POST(req: NextRequest){
                 { status: 500 }
             )
 }
+
+        await prisma.user.upsert({
+            where: {
+                id: signedInUserId
+            },
+            update: {},
+            create: {
+                id: signedInUserId
+            }
+        })
     
         const newUrlCode = await prisma.url.create({
             data: {
                 originalUrl,
-                shortCode: randomCode
+                shortCode: randomCode,
+                userId: signedInUserId
             }
         })
     
@@ -95,10 +118,25 @@ export async function POST(req: NextRequest){
   }
 } 
 
-export async function GET(req: NextRequest){
+export async function GET(req: NextRequest,{ params }: { params: Promise<{ userId: string }> }){
     try {
+
+        const {userId} = await params
+        const {userId : signedInUserId} = await auth()
+
+        if (!signedInUserId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        if (userId !== signedInUserId) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        }
+
         const allUrl = await prisma.url.findMany(
             {
+                where: {
+                   userId: signedInUserId
+                },
                 orderBy: {
                     createdAt: "desc"
                 }
@@ -121,21 +159,3 @@ export async function GET(req: NextRequest){
         )
     }
 }
-
-
-
-/*
-POST /api/urls
-1. Receive originalUrl from req.json()
-2. Validate that it is a real URL
-3. Generate a random shortCode
-4. Check if shortCode already exists in database
-5. Save originalUrl and shortCode in database
-6. Return the short URL to frontend
-
-GET /api/urls
-Backend should do:
-1. Fetch all URLs from database
-2. Order by latest created
-3. Return array of URLs
-*/
