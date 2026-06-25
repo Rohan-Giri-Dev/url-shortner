@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { URL } from "node:url";
 import { prisma } from "../../../../../../lib/prisma";
+import { generateShortCode } from "../../../../../../lib/short-code";
 import { auth } from "@clerk/nextjs/server";
 
 
@@ -11,19 +12,6 @@ function isValidUrl(url: string) : boolean{
     } catch {
         return false;
     }
-}
-
-// function to geneate random code
-function generateCode(originalUrl : string): string{
-    const parsedUrl = new URL(originalUrl)
-
-    const urlPath = `${parsedUrl.hostname}${parsedUrl.pathname}`
-                    .replace(/[^a-zA-Z0-9]/g, "")
-                    .toLowerCase()
-                    .slice(0,4)
-    const randomPart = Math.random().toString(36).slice(2,10)
-
-    return `${randomPart}${urlPath}`
 }
 
 function createShortUrl(shortCode: string, req: NextRequest): string {
@@ -55,7 +43,7 @@ export async function POST(req: NextRequest, {params} : {params : Promise<{userI
             return NextResponse.json({error: "Invalid url"}, {status: 400})
         }
     
-        let randomCode = generateCode(originalUrl)
+        let randomCode = generateShortCode()
         let attempts = 0;
     
         let shortCodeDb = await prisma.url.findUnique({
@@ -65,7 +53,7 @@ export async function POST(req: NextRequest, {params} : {params : Promise<{userI
         })
     
         while(shortCodeDb && attempts < 5){
-            randomCode = generateCode(originalUrl)
+            randomCode = generateShortCode()
             attempts++;
     
             shortCodeDb = await prisma.url.findUnique({
