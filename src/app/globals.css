@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #030712;
-  --foreground: #f3f4f6;
-  --accent: #10b981;
+  --background: #000000;
+  --foreground: #fafafa;
+  --accent: #ffffff;
 }
 
 @theme inline {
@@ -25,10 +25,10 @@ body {
   box-sizing: border-box;
 }
 
-/* Custom Scrollbar for premium aesthetic */
+/* Custom Scrollbar for Vercel neat aesthetic */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -36,44 +36,28 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 9999px;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   background-clip: content-box;
 }
 
 ::selection {
-  background: rgba(16, 185, 129, 0.25);
-  color: #10b981;
-}
-
-/* Custom visual glow keyframe for latest URL */
-@keyframes borderGlow {
-  0%, 100% {
-    border-color: rgba(16, 185, 129, 0.15);
-    box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.05);
-  }
-  50% {
-    border-color: rgba(16, 185, 129, 0.4);
-    box-shadow: 0 0 25px 0px rgba(16, 185, 129, 0.12);
-  }
-}
-
-.animate-border-glow {
-  animation: borderGlow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: #27272a;
+  color: #ffffff;
 }
 
 @keyframes floatUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -82,18 +66,16 @@ body {
 }
 
 .animate-float-up {
-  animation: floatUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: floatUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Glassmorphism helpers */
+/* Glassmorphism/Vercel Border panel helpers */
 .glass-panel {
-  background: rgba(13, 18, 30, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #09090b;
+  border: 1px solid #27272a;
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(13, 18, 30, 0.6);
+  border-color: #3f3f46;
+  background: #09090b;
 }

@@ -14,8 +14,7 @@ import {
   MagnifyingGlass, 
   Globe, 
   Sparkle,
-  HourglassHigh,
-  BracketsCurly
+  HourglassHigh
 } from "@phosphor-icons/react";
 
 type UrlItem = {
@@ -46,29 +45,21 @@ type ExpiryInfo = {
 function MetricCard({
   label,
   value,
-  tone,
   icon: Icon,
 }: {
   label: string;
   value: string | number;
-  tone: "cyan" | "emerald" | "amber";
   icon: React.ComponentType<{ size: number; className?: string }>;
 }) {
-  const toneClass = {
-    cyan: "border-cyan-500/10 bg-cyan-950/20 text-cyan-400 shadow-[0_0_15px_-3px_rgba(6,182,212,0.1)]",
-    emerald: "border-emerald-500/10 bg-emerald-950/20 text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.1)]",
-    amber: "border-amber-500/10 bg-amber-950/20 text-amber-400 shadow-[0_0_15px_-3px_rgba(245,158,11,0.1)]",
-  }[tone];
-
   return (
-    <div className={`group relative rounded-xl border border-white/[0.04] bg-white/[0.02] p-5 transition-all duration-300 hover:border-white/[0.08] hover:bg-white/[0.04]`}>
+    <div className="group relative rounded-xl border border-neutral-800 bg-[#09090b] p-5 transition-all duration-300 hover:border-neutral-700">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{label}</p>
-        <span className={`flex h-8 w-8 items-center justify-center rounded-lg border ${toneClass}`}>
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900/30 text-neutral-400">
           <Icon size={16} />
         </span>
       </div>
-      <p className="mt-4 truncate text-3xl font-semibold tracking-tight text-white group-hover:translate-x-0.5 transition-transform duration-300">
+      <p className="mt-4 truncate text-3xl font-bold tracking-tight text-white transition-transform duration-300 group-hover:translate-x-0.5">
         {value}
       </p>
     </div>
@@ -108,7 +99,7 @@ function getExpiryInfo(value: string | null): ExpiryInfo {
       label: "Forever Link",
       detail: "No Expiry",
       helper: "Link stays active indefinitely",
-      className: "border-neutral-500/10 bg-neutral-950/20 text-neutral-400",
+      className: "border-neutral-800 bg-neutral-900/10 text-neutral-400",
     };
   }
 
@@ -116,7 +107,7 @@ function getExpiryInfo(value: string | null): ExpiryInfo {
     label: "Expires",
     detail: formatDateTime(value),
     helper: "Auto-deletes after 24 hrs",
-    className: "border-amber-500/10 bg-amber-950/20 text-amber-300",
+    className: "border-neutral-800 bg-neutral-900/10 text-neutral-300",
   };
 }
 
@@ -246,17 +237,17 @@ export default function DashboardExperience({
   }, [urls, searchQuery]);
 
   return (
-    <main className="min-h-screen bg-[#030712] text-neutral-100 flex flex-col antialiased">
+    <main className="min-h-screen bg-[#000000] text-neutral-100 flex flex-col antialiased">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/[0.04] bg-[#030712]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-neutral-800 bg-[#000000]/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-              <LinkIcon size={16} weight="bold" className="text-[#022d1a]" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-800 bg-[#09090b]">
+              <LinkIcon size={14} weight="bold" className="text-white" />
             </div>
-            <div>
+            <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">Snip</span>
-              <span className="ml-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-2 py-0.5 text-[9px] font-semibold text-neutral-400">
+              <span className="rounded-full border border-neutral-800 bg-neutral-900/30 px-2 py-0.5 text-[9px] font-semibold text-neutral-400">
                 {scopeLabel}
               </span>
             </div>
@@ -267,7 +258,7 @@ export default function DashboardExperience({
       </header>
 
       {/* Main Body */}
-      <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-12 sm:px-6 lg:px-8">
         <section className="flex flex-col gap-10">
           
           {/* Hero Section */}
@@ -275,13 +266,13 @@ export default function DashboardExperience({
             <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
               {headline}
             </h1>
-            <p className="mt-3 text-sm leading-relaxed text-neutral-400">
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400 max-w-[65ch]">
               Generate crisp short codes, manage links, and track metrics. Simple, safe, and lightning fast.
             </p>
           </div>
 
           {/* Form and Input Card */}
-          <div className="rounded-2xl border border-white/[0.04] bg-[#090d16] p-5 shadow-xl shadow-black/30 animate-float-up [animation-delay:100ms]">
+          <div className="rounded-xl border border-neutral-800 bg-[#09090b] p-5 shadow-xl animate-float-up [animation-delay:100ms]">
             <form onSubmit={handleCreateUrl} className="flex flex-col gap-3">
               <div className="relative flex flex-col md:flex-row gap-3">
                 <div className="relative flex-1">
@@ -294,18 +285,18 @@ export default function DashboardExperience({
                     value={originalUrl}
                     onChange={(event) => setOriginalUrl(event.target.value)}
                     placeholder="Enter destination URL (e.g. https://google.com)"
-                    className="min-h-12 w-full rounded-xl border border-white/[0.08] bg-white/[0.02] pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 focus:bg-white/[0.04]"
+                    className="min-h-12 w-full rounded-lg border border-neutral-800 bg-[#000000] pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 outline-none transition-all focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400/20"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting || !originalUrl.trim()}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 text-sm font-semibold text-[#022d1a] transition-all hover:bg-emerald-400 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500 disabled:shadow-none active:scale-[0.98]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-white px-6 text-sm font-semibold text-black transition-all hover:bg-neutral-200 disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500 active:scale-[0.98]"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#022d1a] border-t-transparent" />
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
                       Shortening...
                     </>
                   ) : (
@@ -324,7 +315,7 @@ export default function DashboardExperience({
             </form>
 
             {error && (
-              <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-red-500/10 bg-red-950/20 px-4 py-3 text-xs font-medium text-red-400">
+              <div className="mt-4 flex items-center gap-2.5 rounded-lg border border-neutral-800 bg-neutral-900/10 px-4 py-3 text-xs font-medium text-red-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
                 {error}
               </div>
@@ -333,33 +324,32 @@ export default function DashboardExperience({
 
           {/* Metrics Bento Grid */}
           <section className="grid gap-4 sm:grid-cols-3 animate-float-up [animation-delay:150ms]">
-            <MetricCard label="Total Links" value={totalLinks} tone="cyan" icon={LinkIcon} />
-            <MetricCard label="Total Clicks" value={totalClicks} tone="amber" icon={ChartLine} />
+            <MetricCard label="Total Links" value={totalLinks} icon={LinkIcon} />
+            <MetricCard label="Total Clicks" value={totalClicks} icon={ChartLine} />
             <MetricCard
               label="Top Domain"
               value={mostClickedUrl ? getHostName(mostClickedUrl.originalUrl) : "-"}
-              tone="emerald"
               icon={Globe}
             />
           </section>
 
           {/* Latest Generated Link Area */}
           {latestUrl && (
-            <div className="animate-border-glow rounded-2xl border border-emerald-500/20 bg-emerald-950/5 p-5 transition-all animate-float-up [animation-delay:200ms]">
+            <div className="rounded-xl border border-neutral-700 bg-[#09090b] p-5 transition-all animate-float-up [animation-delay:200ms]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded bg-emerald-500/10 text-emerald-400">
+                    <span className="flex h-5 w-5 items-center justify-center rounded border border-neutral-800 bg-neutral-900/30 text-white">
                       <Sparkle size={12} weight="bold" />
                     </span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-neutral-300">
                       Latest Short URL
                     </span>
                   </div>
                   <a
                     href={latestUrl.shortUrl}
                     target="_blank"
-                    className="mt-2.5 block truncate text-lg font-bold text-white hover:text-emerald-300 transition-colors"
+                    className="mt-2.5 block truncate text-lg font-bold text-white hover:text-neutral-300 transition-colors"
                   >
                     {latestUrl.shortUrl}
                   </a>
@@ -369,7 +359,7 @@ export default function DashboardExperience({
                   <button
                     type="button"
                     onClick={() => handleCopy(latestUrl.shortUrl)}
-                    className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-white px-4 text-xs font-semibold text-[#030712] transition-all hover:bg-neutral-200 active:scale-95"
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-white px-4 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-95"
                   >
                     {copiedUrl === latestUrl.shortUrl ? (
                       <>
@@ -386,7 +376,7 @@ export default function DashboardExperience({
                   <a
                     href={latestUrl.shortUrl}
                     target="_blank"
-                    className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-xs font-semibold text-neutral-300 transition-all hover:bg-white/[0.06] hover:text-white"
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-neutral-800 bg-black px-4 text-xs font-semibold text-neutral-300 transition-all hover:bg-neutral-900 hover:text-white"
                   >
                     <ArrowSquareOut size={14} />
                     Open
@@ -398,7 +388,7 @@ export default function DashboardExperience({
 
           {/* Links List and Search filters */}
           <section className="flex flex-col gap-4 animate-float-up [animation-delay:250ms]">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b border-white/[0.04] pb-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b border-neutral-800 pb-4">
               <div>
                 <h2 className="text-lg font-bold text-white">Active Links</h2>
                 <p className="text-xs text-neutral-500">Scan, filter, and track metrics on your generated shortcuts.</p>
@@ -415,20 +405,20 @@ export default function DashboardExperience({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search links or hosts..."
-                    className="min-h-9 w-full rounded-lg border border-white/[0.08] bg-white/[0.02] pl-8 pr-3 text-xs text-white placeholder:text-neutral-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.04]"
+                    className="min-h-9 w-full rounded-lg border border-neutral-800 bg-[#09090b] pl-8 pr-3 text-xs text-white placeholder:text-neutral-600 outline-none transition-all focus:border-neutral-400 focus:bg-[#000]"
                   />
                 </div>
               )}
             </div>
 
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-white/[0.04] bg-[#090d16] py-16">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+              <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-800 bg-[#09090b] py-16">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 <p className="mt-3.5 text-xs font-medium text-neutral-400">Loading links...</p>
               </div>
             ) : filteredUrls.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.01] py-16 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.02] text-neutral-500">
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-800 bg-[#09090b]/20 py-16 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-neutral-500">
                   <LinkIcon size={20} />
                 </div>
                 <p className="mt-4 text-sm font-semibold text-neutral-300">
@@ -448,13 +438,13 @@ export default function DashboardExperience({
                   return (
                     <article
                       key={url.id}
-                      className="group flex flex-col md:flex-row justify-between gap-5 rounded-2xl border border-white/[0.04] bg-[#090d16]/50 p-5 transition-all duration-300 hover:border-white/[0.08] hover:bg-[#090d16]"
+                      className="group flex flex-col md:flex-row justify-between gap-5 rounded-xl border border-neutral-800 bg-[#09090b]/30 p-5 transition-all duration-300 hover:border-neutral-700 hover:bg-[#09090b]"
                     >
                       {/* Left: Info area */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/10 bg-cyan-950/20 px-2 py-0.5 text-[10px] font-bold text-cyan-400">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-900/40 px-2 py-0.5 text-[10px] font-bold text-neutral-400">
                               <Globe size={10} />
                               {getHostName(url.originalUrl)}
                             </span>
@@ -466,7 +456,7 @@ export default function DashboardExperience({
                           <a
                             href={url.shortUrl}
                             target="_blank"
-                            className="mt-3.5 block text-base font-bold text-emerald-400 hover:text-emerald-300 hover:underline transition-all truncate"
+                            className="mt-3.5 block text-base font-bold text-white hover:text-neutral-300 hover:underline transition-all truncate"
                           >
                             {url.shortUrl}
                           </a>
@@ -481,7 +471,7 @@ export default function DashboardExperience({
                           <button
                             type="button"
                             onClick={() => handleCopy(url.shortUrl)}
-                            className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-white px-3 text-[11px] font-semibold text-[#030712] transition-all hover:bg-neutral-200 active:scale-95"
+                            className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-white px-3 text-[11px] font-semibold text-black transition-all hover:bg-neutral-200 active:scale-95"
                           >
                             {isCopied ? (
                               <>
@@ -498,7 +488,7 @@ export default function DashboardExperience({
                           <a
                             href={url.shortUrl}
                             target="_blank"
-                            className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 text-[11px] font-semibold text-neutral-300 transition-all hover:bg-white/[0.06] hover:text-white"
+                            className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-neutral-800 bg-black px-3 text-[11px] font-semibold text-neutral-300 transition-all hover:bg-neutral-900 hover:text-white"
                           >
                             <ArrowSquareOut size={12} />
                             Open
@@ -508,8 +498,8 @@ export default function DashboardExperience({
                             onClick={() => setActiveQrUrl(isQrActive ? null : url.shortUrl)}
                             className={`inline-flex min-h-8 items-center gap-1 rounded-lg border px-3 text-[11px] font-semibold transition-all ${
                               isQrActive 
-                                ? "border-emerald-500/20 bg-emerald-950/20 text-emerald-400"
-                                : "border-white/[0.08] bg-white/[0.02] text-neutral-300 hover:bg-white/[0.06]"
+                                ? "border-neutral-700 bg-neutral-900 text-white"
+                                : "border-neutral-800 bg-black text-neutral-300 hover:bg-neutral-900"
                             }`}
                           >
                             <QrCode size={12} />
@@ -532,11 +522,11 @@ export default function DashboardExperience({
 
                         {/* Clicks & Code Pill */}
                         <div className="grid grid-cols-2 gap-3 min-w-[160px] md:grid-cols-1 md:min-w-[90px]">
-                          <div className="flex flex-col justify-center rounded-xl border border-amber-500/10 bg-amber-950/20 p-4.5 text-center">
-                            <p className="text-[9px] font-bold uppercase tracking-wider text-amber-500/60">Clicks</p>
-                            <p className="mt-1 text-lg font-black text-amber-300">{url.clicks}</p>
+                          <div className="flex flex-col justify-center rounded-xl border border-neutral-800 bg-neutral-900/10 p-4.5 text-center">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Clicks</p>
+                            <p className="mt-1 text-lg font-black text-white">{url.clicks}</p>
                           </div>
-                          <div className="flex flex-col justify-center rounded-xl border border-white/[0.04] bg-white/[0.02] p-4.5 text-center">
+                          <div className="flex flex-col justify-center rounded-xl border border-neutral-800 bg-neutral-900/10 p-4.5 text-center">
                             <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Code</p>
                             <p className="mt-1 truncate text-xs font-bold text-neutral-300">{url.shortCode}</p>
                           </div>
@@ -544,7 +534,7 @@ export default function DashboardExperience({
 
                         {/* QR Code Canvas panel */}
                         {isQrActive && (
-                          <div className="flex items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 shadow-inner shadow-black/20">
+                          <div className="flex items-center justify-center rounded-xl border border-neutral-800 bg-neutral-950 p-3 shadow-inner shadow-black/20">
                             <QRCodeDisplay url={url.shortUrl} size={76} />
                           </div>
                         )}
