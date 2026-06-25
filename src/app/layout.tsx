@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "URL Shortener",
+  title: "snipUrl - Custom URL Shortener",
   description: "Create, manage, and track short links.",
 };
 

@@ -254,7 +254,7 @@ export default function DashboardExperience({
               <LinkIcon size={14} weight="bold" className="text-blue-500" />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold tracking-tight text-white">Snip</span>
+              <span className="text-sm font-bold tracking-tight text-white">snipUrl</span>
               <span className="rounded-full border border-neutral-800 bg-neutral-900/30 px-2 py-0.5 text-[9px] font-semibold text-neutral-400">
                 {scopeLabel}
               </span>
