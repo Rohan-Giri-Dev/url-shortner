@@ -3,6 +3,7 @@ import { URL } from "node:url";
 import { prisma } from "../../../../../../lib/prisma";
 import { generateShortCode } from "../../../../../../lib/short-code";
 import { auth } from "@clerk/nextjs/server";
+import { createShortUrl } from "../../../../../../lib/app-url";
 
 
 function isValidUrl(url: string) : boolean{
@@ -12,14 +13,6 @@ function isValidUrl(url: string) : boolean{
     } catch {
         return false;
     }
-}
-
-function createShortUrl(shortCode: string, req: NextRequest): string {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin
-    const hasProtocol = appUrl.startsWith("http://") || appUrl.startsWith("https://")
-    const baseUrl = hasProtocol ? appUrl : req.nextUrl.origin
-
-    return `${baseUrl.replace(/\/$/, "")}/${shortCode}`
 }
 
 // create a short url 
@@ -95,7 +88,7 @@ export async function POST(req: NextRequest, {params} : {params : Promise<{userI
             {
                 originalUrl: newUrlCode.originalUrl,
                 shortCode: newUrlCode.shortCode,
-                shortUrl: createShortUrl(newUrlCode.shortCode, req),
+                shortUrl: createShortUrl(newUrlCode.shortCode, req.nextUrl.origin),
                 expiresAt: newUrlCode.expiresAt
                 
             },
@@ -142,7 +135,7 @@ export async function GET(req: NextRequest,{ params }: { params: Promise<{ userI
 
         const urlsWithShortLinks = allUrl.map((url) => ({
             ...url,
-            shortUrl: createShortUrl(url.shortCode, req)
+            shortUrl: createShortUrl(url.shortCode, req.nextUrl.origin)
         }))
 
         return NextResponse.json(urlsWithShortLinks)
