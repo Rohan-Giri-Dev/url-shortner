@@ -3,6 +3,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import SignedUserPanel from "./SignedUserPanel";
 import QRCodeDisplay from "./qr/QRCodeDisplay";
+import { 
+  Link as LinkIcon, 
+  Copy, 
+  Check, 
+  ArrowSquareOut, 
+  CalendarBlank, 
+  QrCode, 
+  ChartLine, 
+  MagnifyingGlass, 
+  Globe, 
+  Sparkle,
+  HourglassHigh,
+  BracketsCurly
+} from "@phosphor-icons/react";
 
 type UrlItem = {
   id: string;
@@ -33,26 +47,28 @@ function MetricCard({
   label,
   value,
   tone,
+  icon: Icon,
 }: {
   label: string;
   value: string | number;
-  tone: "cyan" | "amber" | "emerald";
+  tone: "cyan" | "emerald" | "amber";
+  icon: React.ComponentType<{ size: number; className?: string }>;
 }) {
   const toneClass = {
-    cyan: "border-cyan-400/20 bg-cyan-400/10 text-cyan-200",
-    amber: "border-amber-400/20 bg-amber-400/10 text-amber-200",
-    emerald: "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
+    cyan: "border-cyan-500/10 bg-cyan-950/20 text-cyan-400 shadow-[0_0_15px_-3px_rgba(6,182,212,0.1)]",
+    emerald: "border-emerald-500/10 bg-emerald-950/20 text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.1)]",
+    amber: "border-amber-500/10 bg-amber-950/20 text-amber-400 shadow-[0_0_15px_-3px_rgba(245,158,11,0.1)]",
   }[tone];
 
   return (
-    <div className="rounded-lg border border-white/10 bg-[#0d1118] p-4 shadow-xl shadow-black/10">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-neutral-400">{label}</p>
-        <span className={`rounded-md border px-2 py-1 text-xs ${toneClass}`}>
-          Live
+    <div className={`group relative rounded-xl border border-white/[0.04] bg-white/[0.02] p-5 transition-all duration-300 hover:border-white/[0.08] hover:bg-white/[0.04]`}>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{label}</p>
+        <span className={`flex h-8 w-8 items-center justify-center rounded-lg border ${toneClass}`}>
+          <Icon size={16} />
         </span>
       </div>
-      <p className="mt-4 truncate text-3xl font-semibold text-white">
+      <p className="mt-4 truncate text-3xl font-semibold tracking-tight text-white group-hover:translate-x-0.5 transition-transform duration-300">
         {value}
       </p>
     </div>
@@ -60,7 +76,7 @@ function MetricCard({
 }
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-IN", {
+  return new Date(value).toLocaleDateString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -68,7 +84,7 @@ function formatDate(value: string) {
 }
 
 function formatDateTime(value: string) {
-  return new Date(value).toLocaleString("en-IN", {
+  return new Date(value).toLocaleString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -89,18 +105,18 @@ function getHostName(value: string) {
 function getExpiryInfo(value: string | null): ExpiryInfo {
   if (!value) {
     return {
-      label: "No expiry set",
-      detail: "Legacy link",
-      helper: "Stays active",
-      className: "border-neutral-700 bg-white/[0.03] text-neutral-200",
+      label: "Forever Link",
+      detail: "No Expiry",
+      helper: "Link stays active indefinitely",
+      className: "border-neutral-500/10 bg-neutral-950/20 text-neutral-400",
     };
   }
 
   return {
-    label: "Expires at",
+    label: "Expires",
     detail: formatDateTime(value),
-    helper: "Auto-deletes after expiry",
-    className: "border-amber-400/30 bg-amber-400/10 text-amber-100",
+    helper: "Auto-deletes after 24 hrs",
+    className: "border-amber-500/10 bg-amber-950/20 text-amber-300",
   };
 }
 
@@ -116,6 +132,8 @@ export default function DashboardExperience({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeQrUrl, setActiveQrUrl] = useState<string | null>(null);
 
   const getAllUrls = useCallback(async () => {
     const res = await fetch(apiPath);
@@ -217,241 +235,328 @@ export default function DashboardExperience({
     [urls]
   );
 
+  const filteredUrls = useMemo(() => {
+    if (!searchQuery.trim()) return urls;
+    const query = searchQuery.toLowerCase();
+    return urls.filter(url => 
+      url.originalUrl.toLowerCase().includes(query) ||
+      url.shortCode.toLowerCase().includes(query) ||
+      getHostName(url.originalUrl).toLowerCase().includes(query)
+    );
+  }, [urls, searchQuery]);
+
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#07090d] px-4 py-5 text-neutral-100 sm:px-6 lg:px-8">
-      <section className="mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-5">
-        <header className="min-w-0 rounded-lg border border-white/10 bg-[#0d1118] px-4 py-4 shadow-2xl shadow-black/20 sm:px-6">
-          <div className="flex min-w-0 flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-md border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-cyan-200">
-                  URL Shortener
-                </span>
-                <span className="rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-neutral-300">
-                  {scopeLabel}
-                </span>
-              </div>
-
-              <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-normal text-white sm:text-4xl">
-                {headline}
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-400">
-                Create clean short links, copy them in one move, and see the
-                details that matter before you share.
-              </p>
+    <main className="min-h-screen bg-[#030712] text-neutral-100 flex flex-col antialiased">
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-white/[0.04] bg-[#030712]/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+              <LinkIcon size={16} weight="bold" className="text-[#022d1a]" />
             </div>
-
-            <SignedUserPanel />
-          </div>
-
-          <form
-            onSubmit={handleCreateUrl}
-            className="mt-6 min-w-0 rounded-lg border border-white/10 bg-[#080b11] p-3 sm:p-4"
-          >
-            <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1fr)_180px]">
-              <label className="min-w-0">
-                <span className="sr-only">Destination URL</span>
-                <input
-                  type="url"
-                  value={originalUrl}
-                  onChange={(event) => setOriginalUrl(event.target.value)}
-                  placeholder="Paste a destination URL"
-                  className="min-h-12 w-full rounded-md border border-white/10 bg-[#0d1118] px-4 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/20"
-                />
-              </label>
-
-              <button
-                type="submit"
-                disabled={isSubmitting || !originalUrl.trim()}
-                className="min-h-12 rounded-md bg-emerald-400 px-5 text-sm font-semibold text-[#042014] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-[#738079]"
-              >
-                {isSubmitting ? "Shortening..." : "Generate link"}
-              </button>
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-500">
-              <span>New links expire after 24 hours.</span>
-              <span className="break-words">
-                Use the full URL including https://
+            <div>
+              <span className="text-sm font-bold tracking-tight text-white">Snip</span>
+              <span className="ml-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-2 py-0.5 text-[9px] font-semibold text-neutral-400">
+                {scopeLabel}
               </span>
             </div>
-          </form>
+          </div>
+          
+          <SignedUserPanel />
+        </div>
+      </header>
 
-          {error && (
-            <p className="mt-4 rounded-md border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-              {error}
+      {/* Main Body */}
+      <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-12 sm:px-6 lg:px-8">
+        <section className="flex flex-col gap-10">
+          
+          {/* Hero Section */}
+          <div className="max-w-2xl animate-float-up">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              {headline}
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400">
+              Generate crisp short codes, manage links, and track metrics. Simple, safe, and lightning fast.
             </p>
-          )}
-        </header>
-
-        <section className="grid gap-4 md:grid-cols-3">
-          <MetricCard label="Total links" value={totalLinks} tone="cyan" />
-          <MetricCard label="Total clicks" value={totalClicks} tone="amber" />
-          <MetricCard
-            label="Top destination"
-            value={mostClickedUrl ? getHostName(mostClickedUrl.originalUrl) : "-"}
-            tone="emerald"
-          />
-        </section>
-
-        {latestUrl && (
-          <section className="min-w-0 rounded-lg border border-emerald-400/20 bg-[#0d1512] px-4 py-4 sm:px-5">
-            <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-wide text-emerald-200">
-                  Latest generated link
-                </p>
-                <a
-                  href={latestUrl.shortUrl}
-                  target="_blank"
-                  className="mt-2 block truncate text-base font-semibold text-white hover:text-emerald-100"
-                >
-                  {latestUrl.shortUrl}
-                </a>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleCopy(latestUrl.shortUrl)}
-                  className="min-h-10 rounded-md bg-white px-4 text-sm font-semibold text-neutral-950 transition hover:bg-neutral-200"
-                >
-                  {copiedUrl === latestUrl.shortUrl ? "Copied" : "Copy"}
-                </button>
-                <a
-                  href={latestUrl.shortUrl}
-                  target="_blank"
-                  className="inline-flex min-h-10 items-center rounded-md border border-emerald-300/30 px-4 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200 hover:bg-emerald-300/10"
-                >
-                  Open
-                </a>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section className="flex min-w-0 flex-col gap-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-white">Links</h2>
-              <p className="mt-1 text-sm text-neutral-400">
-                Scan destinations, expiry, QR codes, and click counts at a glance.
-              </p>
-            </div>
-            <span className="w-fit rounded-md border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-medium text-neutral-300">
-              {totalLinks} active
-            </span>
           </div>
 
-          {isLoading ? (
-            <div className="rounded-lg border border-white/10 bg-[#0d1118] px-5 py-14 text-center">
-              <p className="text-sm text-neutral-400">Loading links...</p>
-            </div>
-          ) : urls.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-white/15 bg-[#0d1118] px-5 py-14 text-center">
-              <p className="text-sm font-medium text-neutral-200">
-                {emptyMessage}
-              </p>
-              <p className="mt-2 text-sm text-neutral-500">
-                Paste a destination URL above to create the first active link.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-3">
-              {urls.map((url) => {
-                const expiryInfo = getExpiryInfo(url.expiresAt);
-                const isCopied = copiedUrl === url.shortUrl;
+          {/* Form and Input Card */}
+          <div className="rounded-2xl border border-white/[0.04] bg-[#090d16] p-5 shadow-xl shadow-black/30 animate-float-up [animation-delay:100ms]">
+            <form onSubmit={handleCreateUrl} className="flex flex-col gap-3">
+              <div className="relative flex flex-col md:flex-row gap-3">
+                <div className="relative flex-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-neutral-500">
+                    <LinkIcon size={18} />
+                  </div>
+                  <input
+                    type="url"
+                    required
+                    value={originalUrl}
+                    onChange={(event) => setOriginalUrl(event.target.value)}
+                    placeholder="Enter destination URL (e.g. https://google.com)"
+                    className="min-h-12 w-full rounded-xl border border-white/[0.08] bg-white/[0.02] pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 outline-none transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 focus:bg-white/[0.04]"
+                  />
+                </div>
 
-                return (
-                  <article
-                    key={url.id}
-                    className="grid min-w-0 gap-4 rounded-lg border border-white/10 bg-[#0d1118] p-4 shadow-xl shadow-black/10 transition hover:border-white/20 lg:grid-cols-[minmax(0,1fr)_180px_108px_112px]"
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !originalUrl.trim()}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 text-sm font-semibold text-[#022d1a] transition-all hover:bg-emerald-400 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500 disabled:shadow-none active:scale-[0.98]"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#022d1a] border-t-transparent" />
+                      Shortening...
+                    </>
+                  ) : (
+                    "Generate link"
+                  )}
+                </button>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-[11px] font-medium text-neutral-500">
+                <span className="flex items-center gap-1">
+                  <HourglassHigh size={12} />
+                  Generated links auto-expire in 24 hours.
+                </span>
+                <span>Please include https:// or http://</span>
+              </div>
+            </form>
+
+            {error && (
+              <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-red-500/10 bg-red-950/20 px-4 py-3 text-xs font-medium text-red-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                {error}
+              </div>
+            )}
+          </div>
+
+          {/* Metrics Bento Grid */}
+          <section className="grid gap-4 sm:grid-cols-3 animate-float-up [animation-delay:150ms]">
+            <MetricCard label="Total Links" value={totalLinks} tone="cyan" icon={LinkIcon} />
+            <MetricCard label="Total Clicks" value={totalClicks} tone="amber" icon={ChartLine} />
+            <MetricCard
+              label="Top Domain"
+              value={mostClickedUrl ? getHostName(mostClickedUrl.originalUrl) : "-"}
+              tone="emerald"
+              icon={Globe}
+            />
+          </section>
+
+          {/* Latest Generated Link Area */}
+          {latestUrl && (
+            <div className="animate-border-glow rounded-2xl border border-emerald-500/20 bg-emerald-950/5 p-5 transition-all animate-float-up [animation-delay:200ms]">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded bg-emerald-500/10 text-emerald-400">
+                      <Sparkle size={12} weight="bold" />
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      Latest Short URL
+                    </span>
+                  </div>
+                  <a
+                    href={latestUrl.shortUrl}
+                    target="_blank"
+                    className="mt-2.5 block truncate text-lg font-bold text-white hover:text-emerald-300 transition-colors"
                   >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-md border border-cyan-400/20 bg-cyan-400/10 px-2 py-1 text-xs font-medium text-cyan-200">
-                          {getHostName(url.originalUrl)}
-                        </span>
-                        <span className="text-xs text-neutral-500">
-                          Created {formatDate(url.createdAt)}
-                        </span>
-                      </div>
+                    {latestUrl.shortUrl}
+                  </a>
+                </div>
 
-                        <p className="mt-3 break-words text-sm text-neutral-400">
-                          {url.originalUrl}
-                        </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(latestUrl.shortUrl)}
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-white px-4 text-xs font-semibold text-[#030712] transition-all hover:bg-neutral-200 active:scale-95"
+                  >
+                    {copiedUrl === latestUrl.shortUrl ? (
+                      <>
+                        <Check size={14} weight="bold" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} weight="bold" />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                  <a
+                    href={latestUrl.shortUrl}
+                    target="_blank"
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 text-xs font-semibold text-neutral-300 transition-all hover:bg-white/[0.06] hover:text-white"
+                  >
+                    <ArrowSquareOut size={14} />
+                    Open
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
 
-                        <div className="mt-3 flex min-w-0 flex-col gap-3 border-t border-white/10 pt-3 sm:flex-row sm:items-center">
-                        <a
-                          href={url.shortUrl}
-                          target="_blank"
-                          className="min-w-0 flex-1 truncate text-sm font-semibold text-emerald-300 hover:text-emerald-200"
-                        >
-                          {url.shortUrl}
-                        </a>
+          {/* Links List and Search filters */}
+          <section className="flex flex-col gap-4 animate-float-up [animation-delay:250ms]">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b border-white/[0.04] pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white">Active Links</h2>
+                <p className="text-xs text-neutral-500">Scan, filter, and track metrics on your generated shortcuts.</p>
+              </div>
 
-                        <div className="flex gap-2">
+              {/* Search filter input */}
+              {urls.length > 0 && (
+                <div className="relative min-w-[240px]">
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-500">
+                    <MagnifyingGlass size={14} />
+                  </span>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search links or hosts..."
+                    className="min-h-9 w-full rounded-lg border border-white/[0.08] bg-white/[0.02] pl-8 pr-3 text-xs text-white placeholder:text-neutral-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.04]"
+                  />
+                </div>
+              )}
+            </div>
+
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-white/[0.04] bg-[#090d16] py-16">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+                <p className="mt-3.5 text-xs font-medium text-neutral-400">Loading links...</p>
+              </div>
+            ) : filteredUrls.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.01] py-16 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.02] text-neutral-500">
+                  <LinkIcon size={20} />
+                </div>
+                <p className="mt-4 text-sm font-semibold text-neutral-300">
+                  {searchQuery ? "No matches found" : emptyMessage}
+                </p>
+                <p className="mt-1 text-xs text-neutral-500 max-w-[280px]">
+                  {searchQuery ? "Try refining your search text or host name." : "Paste a destination URL above to generate your first link."}
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {filteredUrls.map((url) => {
+                  const expiryInfo = getExpiryInfo(url.expiresAt);
+                  const isCopied = copiedUrl === url.shortUrl;
+                  const isQrActive = activeQrUrl === url.shortUrl;
+
+                  return (
+                    <article
+                      key={url.id}
+                      className="group flex flex-col md:flex-row justify-between gap-5 rounded-2xl border border-white/[0.04] bg-[#090d16]/50 p-5 transition-all duration-300 hover:border-white/[0.08] hover:bg-[#090d16]"
+                    >
+                      {/* Left: Info area */}
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-cyan-500/10 bg-cyan-950/20 px-2 py-0.5 text-[10px] font-bold text-cyan-400">
+                              <Globe size={10} />
+                              {getHostName(url.originalUrl)}
+                            </span>
+                            <span className="text-[10px] font-medium text-neutral-500">
+                              Created {formatDate(url.createdAt)}
+                            </span>
+                          </div>
+
+                          <a
+                            href={url.shortUrl}
+                            target="_blank"
+                            className="mt-3.5 block text-base font-bold text-emerald-400 hover:text-emerald-300 hover:underline transition-all truncate"
+                          >
+                            {url.shortUrl}
+                          </a>
+
+                          <p className="mt-1.5 truncate text-xs text-neutral-400 hover:text-neutral-300 transition-colors">
+                            {url.originalUrl}
+                          </p>
+                        </div>
+
+                        {/* Actions line */}
+                        <div className="mt-5 flex flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={() => handleCopy(url.shortUrl)}
-                            className="min-h-10 rounded-md bg-white px-4 text-sm font-semibold text-neutral-950 transition hover:bg-neutral-200"
+                            className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-white px-3 text-[11px] font-semibold text-[#030712] transition-all hover:bg-neutral-200 active:scale-95"
                           >
-                            {isCopied ? "Copied" : "Copy"}
+                            {isCopied ? (
+                              <>
+                                <Check size={12} weight="bold" />
+                                Copied
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={12} weight="bold" />
+                                Copy
+                              </>
+                            )}
                           </button>
                           <a
                             href={url.shortUrl}
                             target="_blank"
-                            className="inline-flex min-h-10 items-center rounded-md border border-white/10 px-4 text-sm font-semibold text-neutral-200 transition hover:border-white/20 hover:bg-white/[0.04]"
+                            className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 text-[11px] font-semibold text-neutral-300 transition-all hover:bg-white/[0.06] hover:text-white"
                           >
+                            <ArrowSquareOut size={12} />
                             Open
                           </a>
+                          <button
+                            type="button"
+                            onClick={() => setActiveQrUrl(isQrActive ? null : url.shortUrl)}
+                            className={`inline-flex min-h-8 items-center gap-1 rounded-lg border px-3 text-[11px] font-semibold transition-all ${
+                              isQrActive 
+                                ? "border-emerald-500/20 bg-emerald-950/20 text-emerald-400"
+                                : "border-white/[0.08] bg-white/[0.02] text-neutral-300 hover:bg-white/[0.06]"
+                            }`}
+                          >
+                            <QrCode size={12} />
+                            {isQrActive ? "Hide QR" : "Show QR"}
+                          </button>
                         </div>
                       </div>
-                    </div>
 
-                    <div
-                      className={`self-start rounded-md border px-3 py-3 ${expiryInfo.className}`}
-                    >
-                      <p className="text-xs font-medium uppercase tracking-wide opacity-75">
-                        {expiryInfo.label}
-                      </p>
-                      <p className="mt-2 text-sm font-semibold leading-5">
-                        {expiryInfo.detail}
-                      </p>
-                      <p className="mt-2 text-xs opacity-75">
-                        {expiryInfo.helper}
-                      </p>
-                    </div>
+                      {/* Right: Stats & QR area */}
+                      <div className="flex flex-wrap md:flex-nowrap items-stretch gap-3 md:w-auto">
+                        {/* Expiry Pill */}
+                        <div className={`flex flex-col justify-center rounded-xl border p-4.5 min-w-[150px] ${expiryInfo.className}`}>
+                          <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-60">
+                            <CalendarBlank size={12} />
+                            {expiryInfo.label}
+                          </div>
+                          <p className="mt-2 text-xs font-bold leading-none">{expiryInfo.detail}</p>
+                          <p className="mt-1 text-[9px] opacity-60">{expiryInfo.helper}</p>
+                        </div>
 
-                    <div className="flex items-center justify-center rounded-md border border-white/10 bg-white/[0.03] p-3">
-                      <QRCodeDisplay url={url.shortUrl} />
-                    </div>
+                        {/* Clicks & Code Pill */}
+                        <div className="grid grid-cols-2 gap-3 min-w-[160px] md:grid-cols-1 md:min-w-[90px]">
+                          <div className="flex flex-col justify-center rounded-xl border border-amber-500/10 bg-amber-950/20 p-4.5 text-center">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-amber-500/60">Clicks</p>
+                            <p className="mt-1 text-lg font-black text-amber-300">{url.clicks}</p>
+                          </div>
+                          <div className="flex flex-col justify-center rounded-xl border border-white/[0.04] bg-white/[0.02] p-4.5 text-center">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Code</p>
+                            <p className="mt-1 truncate text-xs font-bold text-neutral-300">{url.shortCode}</p>
+                          </div>
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-                      <div className="rounded-md border border-amber-400/20 bg-amber-400/10 p-3">
-                        <p className="text-xs uppercase tracking-wide text-amber-200/70">
-                          Clicks
-                        </p>
-                        <p className="mt-2 text-2xl font-semibold text-amber-100">
-                          {url.clicks}
-                        </p>
+                        {/* QR Code Canvas panel */}
+                        {isQrActive && (
+                          <div className="flex items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 shadow-inner shadow-black/20">
+                            <QRCodeDisplay url={url.shortUrl} size={76} />
+                          </div>
+                        )}
                       </div>
-                      <div className="rounded-md border border-white/10 bg-white/[0.03] p-3">
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          Code
-                        </p>
-                        <p className="mt-2 truncate text-sm font-semibold text-neutral-200">
-                          {url.shortCode}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
         </section>
-      </section>
+      </div>
     </main>
   );
 }
