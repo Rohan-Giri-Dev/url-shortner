@@ -30,7 +30,7 @@ export default function SignedUserPanel() {
         </Link>
         <Link
           href="/sign-up"
-          className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-white px-4 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-[0.98]"
+          className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_15px_-3px_rgba(37,99,235,0.4)] active:scale-[0.98]"
         >
           <UserPlus size={14} weight="bold" />
           Sign up
@@ -63,7 +63,7 @@ export default function SignedUserPanel() {
 
       <Link
         href={`/dashboard/${user.id}`}
-        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-white px-4 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-[0.98]"
+        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_15px_-3px_rgba(37,99,235,0.4)] active:scale-[0.98]"
       >
         <LinkSimple size={14} weight="bold" />
         My links

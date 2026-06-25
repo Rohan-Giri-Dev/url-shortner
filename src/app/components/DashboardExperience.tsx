@@ -45,17 +45,25 @@ type ExpiryInfo = {
 function MetricCard({
   label,
   value,
+  tone,
   icon: Icon,
 }: {
   label: string;
   value: string | number;
+  tone: "neutral" | "amber" | "blue";
   icon: React.ComponentType<{ size: number; className?: string }>;
 }) {
+  const toneClass = {
+    neutral: "border-neutral-800 bg-[#09090b] text-neutral-400",
+    amber: "border-amber-950/50 bg-[#09090b] text-amber-400 shadow-[0_0_15px_-5px_rgba(245,158,11,0.05)]",
+    blue: "border-blue-950/50 bg-[#09090b] text-blue-400 shadow-[0_0_15px_-5px_rgba(37,99,235,0.05)]",
+  }[tone];
+
   return (
-    <div className="group relative rounded-xl border border-neutral-800 bg-[#09090b] p-5 transition-all duration-300 hover:border-neutral-700">
+    <div className={`group relative rounded-xl border p-5 transition-all duration-300 ${toneClass} hover:border-neutral-700`}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{label}</p>
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900/30 text-neutral-400">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900/30">
           <Icon size={16} />
         </span>
       </div>
@@ -107,7 +115,7 @@ function getExpiryInfo(value: string | null): ExpiryInfo {
     label: "Expires",
     detail: formatDateTime(value),
     helper: "Auto-deletes after 24 hrs",
-    className: "border-neutral-800 bg-neutral-900/10 text-neutral-300",
+    className: "border-amber-950/40 bg-amber-950/10 text-amber-300",
   };
 }
 
@@ -243,7 +251,7 @@ export default function DashboardExperience({
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-800 bg-[#09090b]">
-              <LinkIcon size={14} weight="bold" className="text-white" />
+              <LinkIcon size={14} weight="bold" className="text-blue-500" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">Snip</span>
@@ -292,11 +300,11 @@ export default function DashboardExperience({
                 <button
                   type="submit"
                   disabled={isSubmitting || !originalUrl.trim()}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-white px-6 text-sm font-semibold text-black transition-all hover:bg-neutral-200 disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500 active:scale-[0.98]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 text-sm font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_15px_-3px_rgba(37,99,235,0.4)] disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500 disabled:shadow-none active:scale-[0.98]"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       Shortening...
                     </>
                   ) : (
@@ -324,11 +332,12 @@ export default function DashboardExperience({
 
           {/* Metrics Bento Grid */}
           <section className="grid gap-4 sm:grid-cols-3 animate-float-up [animation-delay:150ms]">
-            <MetricCard label="Total Links" value={totalLinks} icon={LinkIcon} />
-            <MetricCard label="Total Clicks" value={totalClicks} icon={ChartLine} />
+            <MetricCard label="Total Links" value={totalLinks} tone="neutral" icon={LinkIcon} />
+            <MetricCard label="Total Clicks" value={totalClicks} tone="amber" icon={ChartLine} />
             <MetricCard
               label="Top Domain"
               value={mostClickedUrl ? getHostName(mostClickedUrl.originalUrl) : "-"}
+              tone="blue"
               icon={Globe}
             />
           </section>
@@ -339,7 +348,7 @@ export default function DashboardExperience({
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded border border-neutral-800 bg-neutral-900/30 text-white">
+                    <span className="flex h-5 w-5 items-center justify-center rounded border border-neutral-800 bg-neutral-900/30 text-blue-400">
                       <Sparkle size={12} weight="bold" />
                     </span>
                     <span className="text-xs font-bold uppercase tracking-wider text-neutral-300">
@@ -359,7 +368,11 @@ export default function DashboardExperience({
                   <button
                     type="button"
                     onClick={() => handleCopy(latestUrl.shortUrl)}
-                    className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-white px-4 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-95"
+                    className={`inline-flex min-h-10 items-center gap-1.5 rounded-lg px-4 text-xs font-semibold transition-all active:scale-95 ${
+                      copiedUrl === latestUrl.shortUrl
+                        ? "bg-emerald-950/40 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_-3px_rgba(16,185,129,0.2)]"
+                        : "bg-white text-black hover:bg-neutral-200"
+                    }`}
                   >
                     {copiedUrl === latestUrl.shortUrl ? (
                       <>
@@ -445,7 +458,7 @@ export default function DashboardExperience({
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="inline-flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-900/40 px-2 py-0.5 text-[10px] font-bold text-neutral-400">
-                              <Globe size={10} />
+                              <Globe size={10} className="text-blue-500" />
                               {getHostName(url.originalUrl)}
                             </span>
                             <span className="text-[10px] font-medium text-neutral-500">
@@ -456,7 +469,7 @@ export default function DashboardExperience({
                           <a
                             href={url.shortUrl}
                             target="_blank"
-                            className="mt-3.5 block text-base font-bold text-white hover:text-neutral-300 hover:underline transition-all truncate"
+                            className="mt-3.5 block text-base font-bold text-white hover:text-blue-400 hover:underline transition-all truncate"
                           >
                             {url.shortUrl}
                           </a>
@@ -471,7 +484,11 @@ export default function DashboardExperience({
                           <button
                             type="button"
                             onClick={() => handleCopy(url.shortUrl)}
-                            className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-white px-3 text-[11px] font-semibold text-black transition-all hover:bg-neutral-200 active:scale-95"
+                            className={`inline-flex min-h-8 items-center gap-1 rounded-lg px-3 text-[11px] font-semibold transition-all active:scale-95 ${
+                              isCopied
+                                ? "bg-emerald-950/40 text-emerald-400 border border-emerald-500/20"
+                                : "bg-white text-black hover:bg-neutral-200"
+                            }`}
                           >
                             {isCopied ? (
                               <>
@@ -498,7 +515,7 @@ export default function DashboardExperience({
                             onClick={() => setActiveQrUrl(isQrActive ? null : url.shortUrl)}
                             className={`inline-flex min-h-8 items-center gap-1 rounded-lg border px-3 text-[11px] font-semibold transition-all ${
                               isQrActive 
-                                ? "border-neutral-700 bg-neutral-900 text-white"
+                                ? "border-blue-500/20 bg-blue-950/20 text-blue-400"
                                 : "border-neutral-800 bg-black text-neutral-300 hover:bg-neutral-900"
                             }`}
                           >
@@ -522,9 +539,9 @@ export default function DashboardExperience({
 
                         {/* Clicks & Code Pill */}
                         <div className="grid grid-cols-2 gap-3 min-w-[160px] md:grid-cols-1 md:min-w-[90px]">
-                          <div className="flex flex-col justify-center rounded-xl border border-neutral-800 bg-neutral-900/10 p-4.5 text-center">
-                            <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Clicks</p>
-                            <p className="mt-1 text-lg font-black text-white">{url.clicks}</p>
+                          <div className="flex flex-col justify-center rounded-xl border border-amber-950/50 bg-amber-950/10 p-4.5 text-center">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-amber-500/60">Clicks</p>
+                            <p className="mt-1 text-lg font-black text-amber-400">{url.clicks}</p>
                           </div>
                           <div className="flex flex-col justify-center rounded-xl border border-neutral-800 bg-neutral-900/10 p-4.5 text-center">
                             <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Code</p>
